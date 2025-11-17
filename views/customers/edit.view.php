@@ -1,0 +1,84 @@
+<?php
+/**
+ * @var \App\Template $this
+ * @var \App\Models\Customer $customer
+ * @var string|null $error
+ * @var \App\Http\Request $request
+ */
+
+use App\Enums\CustomerStatus;
+
+$this->extend('layout');
+?>
+
+<?php $this->start('title', 'Edit Customer') ?>
+
+<section class="page-header">
+    <div class="container">
+        <div class="page-header-content">
+            <h1 class="page-heading">Edit Customer</h1>
+            <div class="header-actions">
+                <a href="/customers/<?= $customer->id ?>" class="btn btn-secondary">Back to Customer</a>
+                <a href="/customers" class="btn btn-outline">All Customers</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="form-section">
+    <div class="container">
+        <div class="form-card">
+            <form method="POST" action="/customers/<?= $customer->id ?>" class="customer-form form-spacing">
+                <div class="form-group">
+                    <label for="name">Name *</label>
+                    <input type="text" name="name" id="name" required value="<?= htmlspecialchars($customer->name) ?>">
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email *</label>
+                    <input type="email" name="email" id="email" required value="<?= htmlspecialchars($customer->email) ?>">
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone</label>
+                    <input type="tel" name="phone" id="phone" value="<?= htmlspecialchars($customer->phone) ?>">
+                </div>
+
+                <div class="form-group">
+                    <label for="company">Company</label>
+                    <input type="text" name="company" id="company" value="<?= htmlspecialchars($customer->company) ?>">
+                </div>
+
+                <div class="form-group">
+                    <label for="status">Status</label>
+                    <select name="status" id="status">
+                        <?php foreach (CustomerStatus::cases() as $status): ?>
+                            <option value="<?= $status->value ?>" <?= $customer->status->value === $status->value ? 'selected' : '' ?>>
+                                <?= $status->getDisplayName() ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="notes">Notes</label>
+                    <textarea name="notes" id="notes" rows="4"><?= htmlspecialchars($customer->notes) ?></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Update Customer</button>
+                    <a href="/customers/<?= $customer->id ?>" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+
+            <form method="POST" action="/customers/<?= $customer->id ?>" style="margin-top: 20px;">
+                <input type="hidden" name="_method" value="DELETE">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($request->getCsrfToken()) ?>">
+                <button type="submit" class="btn btn-danger"
+                        onclick="return confirm('Are you sure you want to delete this customer? This action cannot be undone.')">
+                    Delete Customer
+                </button>
+            </form>
+        </div>
+    </div>
+</section>

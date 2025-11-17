@@ -1,0 +1,148 @@
+<?php
+/**
+ * @var \App\Template $this
+ * @var \App\Http\Request $request
+ * @var int $activeCustomers
+ * @var int $activeLeads
+ * @var int $inactiveCustomers
+ * @var int $lostLeads
+ * @var int $convertedLeads
+ * @var array $customersByStatus
+ * @var array $leadsByStatus
+ * @var \App\Models\Interaction[] $recentInteractions
+ * @var string|null $success
+ * @var array $errors
+ */
+
+use App\Utils\TimezoneHelper;
+
+$this->extend('layout');
+?>
+
+<?php $this->start('title', 'CRM Dashboard') ?>
+
+<section class="page-header">
+    <div class="container">
+        <h1 class="page-heading">
+            CRM Dashboard
+        </h1>
+    </div>
+</section>
+
+<section class="dashboard">
+    <div class="container">
+        <!-- CRM Metrics -->
+        <div class="dashboard-grid">
+            <div class="dashboard-card">
+                <h2 class="section-heading">CRM Overview</h2>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <h3><?= $activeCustomers ?></h3>
+                        <p>Active Customers</p>
+                        <div class="customer-subcounts">
+                            <?php if ($inactiveCustomers > 0): ?>
+                                <small class="inactive-count"><?= $inactiveCustomers ?> inactive</small>
+                            <?php endif; ?>
+                        </div>
+                        <div class="metric-actions">
+                            <a href="/customers" class="metric-link">View All →</a>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <h3><?= $activeLeads ?></h3>
+                        <p>Active Leads</p>
+                        <div class="lead-subcounts">
+                            <?php if ($lostLeads > 0): ?>
+                                <small class="lost-count"><?= $lostLeads ?> lost</small>
+                            <?php endif; ?>
+                            <?php if ($convertedLeads > 0): ?>
+                                <small class="converted-count"><?= $convertedLeads ?> converted</small>
+                            <?php endif; ?>
+                        </div>
+                        <div class="metric-actions">
+                            <a href="/leads" class="metric-link">View All →</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <h2 class="section-heading">Quick Actions</h2>
+                <div class="action-grid">
+                    <a href="/customers/create" class="link-card">
+                        <h3>Add Customer</h3>
+                        <p>Create a new customer record</p>
+                    </a>
+                    <a href="/leads/create" class="link-card">
+                        <h3>Add Lead</h3>
+                        <p>Add a new potential customer</p>
+                    </a>
+                    <a href="/customers" class="link-card">
+                        <h3>Manage Customers</h3>
+                        <p>View and manage customer records</p>
+                    </a>
+                    <a href="/leads" class="link-card">
+                        <h3>Manage Leads</h3>
+                        <p>View and convert leads</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Breakdown -->
+        <div class="dashboard-grid">
+            <div class="dashboard-card">
+                <h2 class="section-heading">Customer Status</h2>
+                <div class="status-list">
+                    <?php if (empty($customersByStatus)): ?>
+                        <p class="text-muted">No customers yet.</p>
+                    <?php else: ?>
+                        <?php foreach ($customersByStatus as $status => $count): ?>
+                            <div class="status-item">
+                                <span class="status-label"><?= ucfirst($status) ?></span>
+                                <span class="status-count"><?= $count ?></span>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <h2 class="section-heading">Lead Status</h2>
+                <div class="status-list">
+                    <?php if (empty($leadsByStatus)): ?>
+                        <p class="text-muted">No leads yet.</p>
+                    <?php else: ?>
+                        <?php foreach ($leadsByStatus as $status => $count): ?>
+                            <div class="status-item">
+                                <span class="status-label"><?= ucfirst($status) ?></span>
+                                <span class="status-count"><?= $count ?></span>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="dashboard-card">
+            <h2 class="section-heading">Recent Interactions</h2>
+            <div class="activity-list">
+                <?php if (empty($recentInteractions)): ?>
+                    <p class="text-muted">No recent interactions to show.</p>
+                <?php else: ?>
+                    <?php foreach ($recentInteractions as $interaction): ?>
+                        <div class="activity-item">
+                            <div class="activity-content">
+                                <strong><?= htmlspecialchars($interaction->subject) ?></strong>
+                                <span class="activity-type">[<?= ucfirst($interaction->type) ?>]</span>
+                                <p class="activity-description"><?= htmlspecialchars($interaction->description) ?></p>
+                                <small class="activity-date"><?= TimezoneHelper::formatForDisplay($interaction->interaction_date) ?></small>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+</section>
